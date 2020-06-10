@@ -5,10 +5,10 @@ import sklearn as sk
 PATH_TO_TRAIN_DATA = "../data/train_data.csv"
 PATH_TO_TEST_DATA = "../data/train_data.csv"
 PATH_TO_WEATHER_DATA = "../data/all_weather_data.csv"
-
+CLASSIFICATION = ['CarrierDelay', 'WeatherDelay', 'NASDelay', 'LateAircraftDelay']
 
 class FlightPredictor:
-    def __init__(self, path_to_data='', path_to_weather=''):
+    def __init__(self, path_to_weather=PATH_TO_WEATHER_DATA, path_to_data=PATH_TO_TRAIN_DATA):
         """
         Initialize an object from this class.
         @param path_to_weather: The path to a csv file containing weather data.
@@ -26,5 +26,5 @@ class FlightPredictor:
 
 
 if __name__ == '__main__':
-    ml = FlightPredictor(PATH_TO_TRAIN_DATA, PATH_TO_WEATHER_DATA)
+    ml = FlightPredictor()
     # y_hat = ml.predict(PATH_TO_TEST_DATA)
