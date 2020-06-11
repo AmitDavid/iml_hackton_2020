@@ -83,64 +83,49 @@ def Random_forest_trees(X_train, y_train, X_test, y_test):
     return model_name, y_pred, r2, MSE, score_train, score_test, EVS
 
 
-if __name__ == '__main__':
-    df = pd.read_csv("../data/data1k.csv", dtype={'FlightDate': str, 'CRSDepTime': str,
-                                                  'CRSArrTime': str})
-    X, y_delay, y_type = preprocess_flight_data(df)
-    # X.to_csv("results_X.csv")
-    # y.to_csv("results_y.csv")
-    # # print('done')
-    # listNAN=list(y_delay[y_delay.isna()].index)
-    # X=X.drop(listNAN)
-    # y_delay=y_delay.drop(listNAN).to_numpy()
-    X_train, X_test, y_train, y_test = train_test_split(X, y_delay,
-                                                        test_size=0.2)  # , random_state=42)
+def get_best_reg_model(X_train, y_train, X_test, y_test):
     dfs = []
+
+    print("Linear")
     model_name, y_pred, r2, MSE, score_train, score_test, EVS = linear(X_train, y_train, X_test,
                                                                        y_test)
     dfs.append(DataFrame(
         {'model_name': model_name, 'r2': r2, 'MSE': MSE, 'score_train': score_train,
          'score_test': score_test, 'EVS': EVS}, index=[0]))
-    model_name, y_pred, r2, MSE, score_train, score_test, EVS = Polynomial_linear(X_train, y_train,
-                                                                                  X_test, y_test,
-                                                                                  degree=3)
-    dfs.append(DataFrame(
-        {'model_name': model_name, 'r2': r2, 'MSE': MSE, 'score_train': score_train,
-         'score_test': score_test, 'EVS': EVS}))
+
+    print("Polynomial linear")
+    # model_name, y_pred, r2, MSE, score_train, score_test, EVS = Polynomial_linear(X_train, y_train,
+    #                                                                               X_test, y_test,
+    #                                                                               degree=3)
+    # dfs.append(DataFrame(
+    #     {'model_name': model_name, 'r2': r2, 'MSE': MSE, 'score_train': score_train,
+    #      'score_test': score_test, 'EVS': EVS}))
+
+    print("Decision trees")
     model_name, y_pred, r2, MSE, score_train, score_test, EVS = Decision_trees(X_train, y_train,
                                                                                X_test, y_test)
     dfs.append(DataFrame(
         {'model_name': model_name, 'r2': r2, 'MSE': MSE, 'score_train': score_train,
          'score_test': score_test, 'EVS': EVS}, index=[0]))
+
+    print("Random forest trees")
     model_name, y_pred, r2, MSE, score_train, score_test, EVS = Random_forest_trees(X_train,
                                                                                     y_train, X_test,
                                                                                     y_test)
     dfs.append(DataFrame(
         {'model_name': model_name, 'r2': r2, 'MSE': MSE, 'score_train': score_train,
          'score_test': score_test, 'EVS': EVS}, index=[0]))
+
+    print("Lasso regression")
     model_name, y_pred, r2, MSE, score_train, score_test, EVS = lasso_regression(X_train, y_train,
                                                                                  X_test, y_test,
                                                                                  lam=4)
     dfs.append(DataFrame(
         {'model_name': model_name, 'r2': r2, 'MSE': MSE, 'score_train': score_train,
          'score_test': score_test, 'EVS': EVS}, index=[0]))
-    dfs = pd.concat(dfs)
-    plot = ggplot(dfs) + geom_col(aes(x='model_name', y='MSE', fill='model_name'))
-    print(plot)
-    ggsave(plot, 'MSE.png', verbose=False)
-    plot = ggplot(dfs) + geom_col(aes(x='model_name', y='r2', fill='model_name'))
-    print(plot)
-    ggsave(plot, 'r2.png', verbose=False)
-    plot = ggplot(dfs) + geom_col(aes(x='model_name', y='score_train', fill='model_name'))
-    print(plot)
-    ggsave(plot, 'score_train.png', verbose=False)
-    plot = ggplot(dfs) + geom_col(aes(x='model_name', y='score_test', fill='model_name'))
-    print(plot)
-    ggsave(plot, 'score_test.png', verbose=False)
-    plot = ggplot(dfs) + geom_col(aes(x='model_name', y='EVS', fill='model_name'))
-    print(plot)
-    ggsave(plot, 'EVS.png', verbose=False)
 
-    t = 5
+    dfs = pd.concat(dfs)
+    return dfs
 
 # explained_variance_score
+
