@@ -79,7 +79,7 @@ def handle_dates(flight_data_df: pa.DataFrame, weather_df: pa.DataFrame):
 def preprocess_weather_data(flight_data_df: pa.DataFrame, weather_df: pa.DataFrame) -> pa.DataFrame:
     """
     Main driver to get DataFrame with the flight data combined with weather
-    :return: Merged DataFrame of data and weather
+    :return: Merged DataFrame of data and weather, added day_arr column representing the arrival date of the flight
     """
     start = time.time()
     preprocess_weather_df(weather_df)
@@ -93,7 +93,8 @@ def preprocess_weather_data(flight_data_df: pa.DataFrame, weather_df: pa.DataFra
     weather_df.rename(columns={'Origin': 'Dest', 'day': 'day_arr'}, inplace=True)
     merged = merged.merge(weather_df, on=['Dest', 'day_arr'], validate="m:1", how='left', suffixes=('_dep', '_arr'))
 
-    merged['day_arr'] = merged['day_arr'].dt.strftime("%d/%m/%Y")
+    # convert day_arr back to the same format as FlightDate, dropping the col that were required for merging
+    merged['day_arr'] = merged['day_arr'].dt.strftime("%Y-%m-%d")
     merged.drop(columns='day', inplace=True)
 
     end = time.time()
