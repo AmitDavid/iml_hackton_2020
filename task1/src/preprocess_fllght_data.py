@@ -34,16 +34,18 @@ def preprocess_flight_data(df: pd.DataFrame):
 
     # Get categorical features (dummies) for dayOfTheWeek, Reporting_Airline
     # Flight_Number_Reporting_Airline, Origin, Dest
-    df = pd.get_dummies(df, columns=['DayOfWeek', 'Reporting_Airline',
-                                     'Flight_Number_Reporting_Airline', 'Origin', 'Dest'])
+    df = pd.get_dummies(df, columns=['DayOfWeek', 'Reporting_Airline', 'Origin', 'Dest'])
+    df['Flight_Number_Reporting_Airline'] = df['Flight_Number_Reporting_Airline'].astype('category')
 
     # Get hour and ten of minutes of CRSDepTime and CRSArrTime
     # If flight was at 1546.0 (15:46), save it to 154 dummy
     # If flight was at 133.0 (01:33), save it to 013 dummy (with leading zero)
     df['CRSDepTime'] = df['CRSDepTime'].str.slice(stop=-3).str.zfill(3)
     df['CRSArrTime'] = df['CRSArrTime'].str.slice(stop=-3).str.zfill(3)
-    df = pd.get_dummies(df, columns=['CRSDepTime'])
-    df = pd.get_dummies(df, columns=['CRSArrTime'])
+    # df = pd.get_dummies(df, columns=['CRSDepTime'])
+    df['CRSDepTime'] = df['CRSDepTime'].astype('category')
+    # df = pd.get_dummies(df, columns=['CRSArrTime'])
+    df['CRSArrTime'] = df['CRSArrTime'].astype('category')
 
     # Split dayInDate, monthInDate, yearInDate and make than dummies (yyyy-mm-dd)
     df['yearInDate'] = df['FlightDate'].str.slice(stop=4)
