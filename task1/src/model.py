@@ -36,7 +36,7 @@ class FlightPredictor:
         """
         # Preprocess data
         df = preprocess_weather_data(X, weather_df)
-        new_X = preprocess_flight_data(df)
+        X = preprocess_flight_data(df)
 
         y_delay_hat = self.reg_model.predict(X)
         y_type_hat = self.class_model.predict(X)
@@ -114,7 +114,8 @@ if __name__ == '__main__':
         y_test_delay, y_test_type = split_to_train_test(X, y_delay, y_type)
 
     # Get reg model
-    reg_model = get_best_reg_model(X_train, y_train_delay, X_test, y_test_delay)
+    mask = y_delay > 0
+    reg_model = get_best_reg_model(X[mask], y_type[mask])
 
     # Run and get score
     y_train_delay_hat = reg_model.predict(X_train)
