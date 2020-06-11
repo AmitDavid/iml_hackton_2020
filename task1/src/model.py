@@ -1,7 +1,8 @@
 import pickle
 import pandas as pd
-from Classification import *
-from weather_preprocess import *
+from task1.src.Classification import *
+from task1.src.weather_preprocess import *
+from task1.src.preprocess_fllght_data import *
 
 ###########################################
 #        For running trained model        #
@@ -16,15 +17,15 @@ class FlightPredictor:
         Initialize an object from this class.
         @param path_to_weather: The path to a csv file containing weather data.
         """
-        self.weather_df = pd.read_csv(path_to_weather)
+        self.__weather_df = pd.read_csv(path_to_weather, low_memory=False)
 
-        reg_file = open(PATH_TO_REGRESSION_MODEL, 'rb')
-        self.reg_model = pickle.load(reg_file)
-        reg_file.close()
+        with open(PATH_TO_REGRESSION_MODEL, 'rb') as reg_file:
+            self.__reg_model = pickle.load(reg_file)
+            reg_file.close()
 
-        class_file = open(PATH_TO_CLASSIFICATION_MODEL, 'rb')
-        self.class_model = pickle.load(class_file)
-        class_file.close()
+        with open(PATH_TO_CLASSIFICATION_MODEL, 'rb') as class_file:
+            self.__class_model = pickle.load(class_file)
+            class_file.close()
 
     def predict(self, design_matrix):
         """
@@ -34,11 +35,11 @@ class FlightPredictor:
         @return: A pandas DataFrame with shape (m, 2) with your prediction
         """
         # Preprocess data
-        df = preprocess_weather_data(design_matrix, self.weather_df)
+        df = preprocess_weather_data(design_matrix, self.__weather_df)
         design_matrix = preprocess_flight_data(df, False)
 
-        y_delay_hat = self.reg_model.predict(design_matrix)
-        y_type_hat = self.class_model.predict(design_matrix)
+        y_delay_hat = self.__reg_model.predict(design_matrix)
+        y_type_hat = self.__class_model.predict(design_matrix)
 
         cols = ['ArrDelay', 'DelayFactor']
         list_of_series = [pd.Series(y_delay_hat, index=cols), pd.Series(y_type_hat, index=cols)]

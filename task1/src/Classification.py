@@ -19,7 +19,7 @@ def random_forest(X_train, y_train, X_test, y_test):
     rand_tree = RandomForestClassifier(n_estimators=100, min_samples_split=0.01, random_state=0)
     rand_tree.fit(X_train, y_train)
     s = score(rand_tree, X_test, y_test, model_name)
-    return s
+    return rand_tree, s
 
 
 def get_classification_model(X_train, y_train, X_test, y_test):

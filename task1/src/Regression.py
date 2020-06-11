@@ -20,10 +20,9 @@ def decision_tree(X_train, y_train, X_test, y_test):
     print('right_pred', right_pred)
 
     print("save decision trees results to file")
-
-    return DataFrame(
-        {'model_name': model_name, 'r2': r2, 'MSE': mse, 'score_train': score_train, 'score_test':
-            score_test, 'EVS': evs}, index=[0])
+    score = DataFrame({'model_name': model_name, 'r2': r2, 'MSE': mse, 'score_train': score_train, 'score_test':
+        score_test, 'EVS': evs}, index=[0])
+    return decision_tree_model, score
 
 
 def get_reg_model(X_train, y_train, X_test, y_test):

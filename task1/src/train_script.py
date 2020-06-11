@@ -2,10 +2,12 @@ import os
 import sys
 import time
 import pandas as pd
-from Classification import *
-from Regression import *
-from preprocess_fllght_data import *
-from weather_preprocess import *
+import task1.src.model as model
+import pickle
+from task1.src.Classification import *
+from task1.src.Regression import *
+from task1.src.preprocess_fllght_data import *
+from task1.src.weather_preprocess import *
 
 NUM_OF_ARGS = 3
 
@@ -13,6 +15,8 @@ PATH_TO_TRAIN_DATA = "../data/train_data.csv"
 PATH_TO_1K_TRAIN_DATA = "../data/data1k.csv"
 PATH_TO_TEST_DATA = "../data/train_data.csv"
 PATH_TO_WEATHER_DATA = "../data/all_weather_data.csv"
+PATH_TO_REGRESSION_MODEL = "../pickle/reg_model"
+PATH_TO_CLASSIFICATION_MODEL = "../pickle/class_model"
 
 MY_DIR = os.path.dirname(__file__)
 PATH_TO_WEATHER_FILE_PATH = os.path.join(MY_DIR, '..', 'data', 'all_weather_data.csv')
@@ -57,10 +61,13 @@ def run_classifier(X_test: pd.DataFrame, X_train: pd.DataFrame, y_test_type: pd.
     y_test_type, y_train_type = y_test_type.cat.codes, y_train_type.cat.codes
     y_test_type, y_train_type = y_test_type + 1, y_train_type + 1
 
-    class_model = get_classification_model(X_train[mask_train], y_train_type[mask_train],
-                                           X_test[mask_test],
-                                           y_test_type[mask_test])
-    print(class_model.to_string())
+    classification_model, score = get_classification_model(X_train[mask_train], y_train_type[mask_train],
+                                                           X_test[mask_test],
+                                                           y_test_type[mask_test])
+    with open(PATH_TO_CLASSIFICATION_MODEL, 'wb') as classification_file:
+        pickle.dump(classification_model, classification_file)
+        classification_file.close()
+    print(score.to_string())
     end = time.time()
     print("run classifier time: {}".format(end - start))
 
@@ -76,9 +83,11 @@ def run_regression(X_test, X_train, y_test_delay, y_train_delay):
     start = time.time()
 
     print("run reg models")
-    reg_model = get_reg_model(X_train, y_train_delay, X_test, y_test_delay)
-    print(reg_model.to_string())
-
+    reg_model, score = get_reg_model(X_train, y_train_delay, X_test, y_test_delay)
+    print(score.to_string())
+    with open(PATH_TO_REGRESSION_MODEL, 'wb') as reg_file:
+        pickle.dump(reg_model, reg_file)
+        reg_file.close()
     end = time.time()
     print("run reg time: {}".format(end - start))
 
@@ -97,9 +106,7 @@ def get_feature_matrix(train_path: str, weather_path: str):
 
     else:
         print('load data')
-        df = pd.read_csv(train_path,
-                         dtype={'FlightDate': str, 'CRSDepTime': str, 'CRSArrTime': str},
-                         nrows=100000)
+        df = pd.read_csv(train_path, nrows=100000)
         print('load weather')
         weather_df = pd.read_csv(weather_path, low_memory=False)
         print('preprocess weather')
@@ -149,11 +156,20 @@ def start_train(train_path: str, weather_path: str):
     run_classifier(x_test, x_train, y_test_type, y_train_type)
 
 
+def model_test():
+    matrix_x = pd.read_csv(PATH_TO_SMALL_TRAIN_DATA_PATH)
+    my_model = model.FlightPredictor(PATH_TO_WEATHER_FILE_PATH)
+    y = my_model.predict(matrix_x)
+    print(y.to_string())
+
+
 if __name__ == '__main__':
-    if is_valid_usage():
-        start_train(TRAIN_DATA_FILE[sys.argv[1]], WEATHER_FILE[sys.argv[2]])
-    else:
-        print("Usage: python weather_preprocess.py X Y\n"
-              "'X = 1k/10k/all_data' for 1k/10k/all_data flight data\n"
-              "'Y = jfk' for weather with only JFK\n"
-              "'Y = all_weather' for all weather data\n")
+    model_test()
+
+    # if is_valid_usage():
+    #     start_train(TRAIN_DATA_FILE[sys.argv[1]], WEATHER_FILE[sys.argv[2]])
+    # else:
+    #     print("Usage: python weather_preprocess.py X Y\n"
+    #           "'X = 1k/10k/all_data' for 1k/10k/all_data flight data\n"
+    #           "'Y = jfk' for weather with only JFK\n"
+    #           "'Y = all_weather' for all weather data\n")
