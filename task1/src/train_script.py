@@ -2,10 +2,10 @@ import os
 import sys
 import time
 import pandas as pd
-from Classification import *
-from Regression import *
-from preprocess_fllght_data import *
-from weather_preprocess import *
+from task1.src.Classification import *
+from task1.src.Regression import *
+from task1.src.preprocess_fllght_data import *
+from task1.src.weather_preprocess import *
 
 NUM_OF_ARGS = 3
 

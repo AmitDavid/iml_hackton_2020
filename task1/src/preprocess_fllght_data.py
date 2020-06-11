@@ -25,7 +25,11 @@ def preprocess_flight_data(df: pd.DataFrame, train_data=True):
                 DelayFactor:                     Type fo delay
     :return: X - Processed data frame. y_delay - Time difference , y_type - Type fo delay
     """
-    # TODO: might make them dummies as well, check if make prediction better
+    # Convert to strings
+    df['FlightDate'].astype(str)
+    df['CRSDepTime'].astype(str)
+    df['CRSArrTime'].astype(str)
+
     # Remove Tail_Number, OriginCityName, OriginState, DestCityName, DestState,
     del df['OriginCityName']
     del df['OriginState']
