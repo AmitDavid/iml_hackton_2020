@@ -1,5 +1,4 @@
 import datetime
-import time
 
 import pandas as pa
 
@@ -44,6 +43,10 @@ def fix_snow_cols(df: pa.DataFrame):
 
 
 def drop_unused_cols(df: pa.DataFrame):
+    """
+    Drop columns from dataset that are irrelevant
+    :param df: The weather DataFrame
+    """
     for col in df:
         if col not in RELEVANT_COLS:
             df.drop(columns=col, inplace=True)
@@ -105,6 +108,4 @@ def preprocess_weather_data(flight_data_df: pa.DataFrame, weather_df: pa.DataFra
     # convert day_arr back to the same format as FlightDate, dropping the col that were required for merging
     merged['day_arr'] = merged['day_arr'].dt.strftime("%Y-%m-%d")
     merged.drop(columns='day', inplace=True)
-    merged.info()
-
     return merged

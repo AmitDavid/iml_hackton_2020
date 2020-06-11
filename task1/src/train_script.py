@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 from task1.src.preprocess_fllght_data import *
 from task1.src.weather_preprocess import *
 from task1.src.Classification import *
@@ -31,14 +32,6 @@ TRAIN_DATA_FILE = {
 }
 
 
-def get_reg_score(y: pd.DataFrame, y_hat: pd.DataFrame) -> float:
-    return -1.0
-
-
-def get_class_score(y: pd.DataFrame, y_hat: pd.DataFrame) -> float:
-    return sum(y == y_hat)
-
-
 def is_valid_usage():
     return len(sys.argv) == NUM_OF_ARGS and sys.argv[1] in TRAIN_DATA_FILE \
            and sys.argv[2] in WEATHER_FILE
@@ -62,14 +55,9 @@ def run_classifier(X_test: pa.DataFrame, X_train: pa.DataFrame, y_test_type: pa.
     y_test_type, y_train_type = y_test_type.cat.codes, y_train_type.cat.codes
     y_test_type, y_train_type = y_test_type + 1, y_train_type + 1
 
-    class_model = get_best_class_model(X_train[mask_train], y_train_type[mask_train], X_test[mask_test],
-                                       y_test_type[mask_test])
+    class_model = get_classification_model(X_train[mask_train], y_train_type[mask_train], X_test[mask_test],
+                                           y_test_type[mask_test])
     print(class_model.to_string())
-    # Run and get score
-    # y_train_type_hat = class_model.predict(X_train)
-    # y_test_type_hat = class_model.predict(X_test)
-    # print('class train score: ', get_class_score(y_train_type, y_train_type_hat))
-    # print('class test score: ', get_class_score(y_test_type, y_test_type_hat))
     end = time.time()
     print("run classifier time: {}".format(end - start))
 
@@ -79,20 +67,14 @@ def run_regression(X_test, X_train, y_test_delay, y_train_delay):
     Run the regression, and print the score of the trained model
     :param X_test: Test feature matrix
     :param X_train: Train feature matrix
-    :param y_test_type: Test types
-    :param y_train_type: Train types
+    :param y_test_delay: Test delay
+    :param y_train_delay: Train delay
     """
     start = time.time()
 
     print("run reg models")
-    reg_model = get_best_reg_model(X_train, y_train_delay, X_test, y_test_delay)
+    reg_model = get_reg_model(X_train, y_train_delay, X_test, y_test_delay)
     print(reg_model.to_string())
-
-    # Run and get score
-    # y_train_delay_hat = reg_model.predict(X_train)
-    # y_test_delay_hat = reg_model.predict(X_test)
-    # print('reg train score: ', get_reg_score(y_train_delay, y_train_delay_hat))
-    # print('reg test score: ', get_reg_score(y_test_delay, y_test_delay_hat))
 
     end = time.time()
     print("run reg time: {}".format(end - start))
@@ -108,16 +90,11 @@ def get_feature_matrix(train_path: str, weather_path: str):
     start = time.time()
 
     if os.path.isfile("../pickle/X_10000.csv"):
-        print("file exists, load from file")
-        X = pd.read_csv("../pickle/X_10000.csv")
-        y_delay = pd.read_csv("../pickle/y_delay_10000.csv")['ArrDelay']
-        y_type = pd.read_csv("../pickle/y_type_10000.csv")['DelayFactor']
-        print("load complete")
+        X, y_delay, y_type = read_saved_files()
 
     else:
         print('load data')
-        df = pd.read_csv(train_path, dtype={'FlightDate': str, 'CRSDepTime': str, 'CRSArrTime': str}
-                         , nrows=100000)
+        df = pd.read_csv(train_path, dtype={'FlightDate': str, 'CRSDepTime': str, 'CRSArrTime': str}, nrows=100000)
         print('load weather')
         weather_df = pd.read_csv(weather_path, low_memory=False)
         print('preprocess weather')
@@ -131,11 +108,24 @@ def get_feature_matrix(train_path: str, weather_path: str):
         print(X.describe().to_string())
         print(X.head(50).to_string())
 
-        print("load to file")
-        X.to_csv(f"../pickle/X_10000.csv", index=False)
-        y_delay.to_csv(f"../pickle/y_delay_10000.csv", index=False)
-        y_type.to_csv(f"../pickle/y_type_10000.csv", index=False)
+        save_to_file(X, y_delay, y_type)
 
+    return X, y_delay, y_type
+
+
+def save_to_file(X, y_delay, y_type):
+    print("save to file")
+    X.to_csv(f"../pickle/X_10000.csv", index=False)
+    y_delay.to_csv(f"../pickle/y_delay_10000.csv", index=False)
+    y_type.to_csv(f"../pickle/y_type_10000.csv", index=False)
+
+
+def read_saved_files():
+    print("file exists, load from file")
+    X = pd.read_csv("../pickle/X_10000.csv")
+    y_delay = pd.read_csv("../pickle/y_delay_10000.csv")['ArrDelay']
+    y_type = pd.read_csv("../pickle/y_type_10000.csv")['DelayFactor']
+    print("load complete")
     return X, y_delay, y_type
 
 
@@ -147,7 +137,7 @@ def start_train(train_path: str, weather_path: str):
     # Split to train and test
     X_train, y_train_delay, y_train_type, X_test, y_test_delay, y_test_type = split_to_train_test(X, y_delay, y_type)
 
-    # run_regression(X_test, X_train, y_test_delay, y_train_delay)
+    run_regression(X_test, X_train, y_test_delay, y_train_delay)
     # Get classifier model
     run_classifier(X_test, X_train, y_test_type, y_train_type)
 
