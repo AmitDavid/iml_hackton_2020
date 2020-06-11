@@ -9,8 +9,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.tree import DecisionTreeRegressor
-
-
+from sklearn.linear_model import ElasticNetCV
+from sklearn.model_selection import GridSearchCV
+import numpy as np
 def linear(X_train, y_train, X_test, y_test):
     model_name = 'simple Linear Regression'
     reg = LinearRegression().fit(X_train, y_train)
@@ -40,6 +41,9 @@ def lasso_regression(X_train, y_train, X_test, y_test, lam):
     EVS = explained_variance_score(y_test, y_pred)
     MSE = mean_squared_error(y_test, y_pred)
 
+    right_pred = np.where(np.sign(y_test) == np.sign(y_pred), 1, 0).sum() / len(y_test)
+    print('right_pred', right_pred)
+
     print("save lasso results to file")
     pd.DataFrame(y_pred).to_csv("../pickle/lasso_pred.csv")
 
@@ -61,7 +65,7 @@ def Polynomial_linear(X_train, y_train, X_test, y_test, degree):
 
 def Decision_trees(X_train, y_train, X_test, y_test):
     model_name = 'Decision trees'
-    regressor = DecisionTreeRegressor(random_state=42, max_features=0.75, min_samples_split=0.01, min_samples_leaf=20)
+    regressor = DecisionTreeRegressor(max_features=0.8, min_samples_split=0.2, min_samples_leaf=0.05)
     regressor.fit(X_train, y_train)
     score_train = regressor.score(X_train, y_train)
     score_test = regressor.score(X_test, y_test)
@@ -71,8 +75,36 @@ def Decision_trees(X_train, y_train, X_test, y_test):
     EVS = explained_variance_score(y_test, y_pred)
     MSE = mean_squared_error(y_test, y_pred)
 
-    print("save lasso results to file")
+    right_pred = np.where(np.sign(y_test) == np.sign(y_pred), 1, 0).sum() / len(y_test)
+    print('right_pred', right_pred)
+
+    print("save decision trees results to file")
     pd.DataFrame(y_pred).to_csv("../pickle/dec_tree_pred.csv")
+
+    return model_name, y_pred, r2, MSE, score_train, score_test, EVS
+
+
+def Elastic_cv(X_train, y_train, X_test, y_test):
+    model_name = 'elastic trees'
+    # regressor = DecisionTreeRegressor(max_features=0.95, min_samples_split=0.2, min_samples_leaf=0.05)
+    # elastic = ElasticNetCV(normalize=True, cv=5)
+    elastic = ElasticNetCV(l1_ratio=0.2, cv=5)
+    # search=GridSearchCV(estimator=elastic,param_grid={'alpha':np.logspace(-5,2,8),'l1_ratio':[.2,.4,.6,.8]},
+    #                     scoring='neg_mean_squared_error',n_jobs=1,refit=True,cv=10)
+    elastic.fit(X_train, y_train)
+    score_train = elastic.score(X_train, y_train)
+    score_test = elastic.score(X_test, y_test)
+    y_pred = elastic.predict(X_test)
+
+    r2 = r2_score(y_test, y_pred)
+    EVS = explained_variance_score(y_test, y_pred)
+    MSE = mean_squared_error(y_test, y_pred)
+
+    right_pred = np.where(np.sign(y_test) == np.sign(y_pred), 1, 0).sum() / len(y_test)
+    print('right_pred', right_pred)
+
+    print("save elastic trees to file")
+    pd.DataFrame(y_pred).to_csv("../pickle/elastic_tree_pred.csv")
 
     return model_name, y_pred, r2, MSE, score_train, score_test, EVS
 
@@ -114,6 +146,14 @@ def get_best_reg_model(X_train, y_train, X_test, y_test):
     dfs.append(DataFrame(
         {'model_name': model_name, 'r2': r2, 'MSE': MSE, 'score_train': score_train,
          'score_test': score_test, 'EVS': EVS}, index=[0]))
+
+    # print("Elastic_cv")
+    # model_name, y_pred, r2, MSE, score_train, score_test, EVS = Elastic_cv(X_train, y_train,
+    #                                                                            X_test, y_test)
+    # dfs.append(DataFrame(
+    #     {'model_name': model_name, 'r2': r2, 'MSE': MSE, 'score_train': score_train,
+    #      'score_test': score_test, 'EVS': EVS}, index=[0]))
+
 
     # print("Random forest trees")
     # model_name, y_pred, r2, MSE, score_train, score_test, EVS = Random_forest_trees(X_train,

@@ -106,7 +106,8 @@ def get_feature_matrix(train_path: str, weather_path: str):
 
     else:
         print('load data')
-        df = pd.read_csv(train_path, dtype={'FlightDate': str, 'CRSDepTime': str, 'CRSArrTime': str})
+        df = pd.read_csv(train_path, dtype={'FlightDate': str, 'CRSDepTime': str, 'CRSArrTime': str}
+                         , nrows=100000)
         print('load weather')
         weather_df = pd.read_csv(weather_path, low_memory=False)
         print('preprocess weather')
