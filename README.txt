@@ -27,3 +27,6 @@ task1
 
 README.txt -
     this file.
+
+USERS.txt -
+    contains the logins and IDs of all the team members.
