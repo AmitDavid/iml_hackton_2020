@@ -97,7 +97,7 @@ def preprocess_weather_data(flight_data_df: pa.DataFrame, weather_df: pa.DataFra
     :return: Merged DataFrame of data and weather, added day_arr column representing the arrival date of the flight
     """
     preprocess_weather_df(weather_df)
-    # changed date format to "datetime64 dtype", as the two are not fitting at the moment
+    # changed date format to "datetime64 dType", as the two are not fitting at the moment
     handle_dates(flight_data_df, weather_df)
 
     # merge by departure date and origin

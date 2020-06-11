@@ -1,5 +1,5 @@
 import pickle
-
+import pandas as pd
 from Classification import *
 from weather_preprocess import *
 
@@ -26,19 +26,19 @@ class FlightPredictor:
         self.class_model = pickle.load(class_file)
         class_file.close()
 
-    def predict(self, X):
+    def predict(self, design_matrix):
         """
-        Recieves a pandas DataFrame of shape (m, 15) with m flight features, and predicts their
+        Receives a pandas DataFrame of shape (m, 15) with m flight features, and predicts their
         delay at arrival and the main factor for the delay.
-        @param X: A pandas DataFrame with shape (m, 15)
+        @param design_matrix: A pandas DataFrame with shape (m, 15)
         @return: A pandas DataFrame with shape (m, 2) with your prediction
         """
         # Preprocess data
-        df = preprocess_weather_data(X, self.weather_df)
-        X = preprocess_flight_data(df, False)
+        df = preprocess_weather_data(design_matrix, self.weather_df)
+        design_matrix = preprocess_flight_data(df, False)
 
-        y_delay_hat = self.reg_model.predict(X)
-        y_type_hat = self.class_model.predict(X)
+        y_delay_hat = self.reg_model.predict(design_matrix)
+        y_type_hat = self.class_model.predict(design_matrix)
 
         cols = ['ArrDelay', 'DelayFactor']
         list_of_series = [pd.Series(y_delay_hat, index=cols), pd.Series(y_type_hat, index=cols)]

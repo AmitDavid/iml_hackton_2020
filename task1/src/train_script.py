@@ -1,7 +1,7 @@
 import os
 import sys
 import time
-
+import pandas as pd
 from Classification import *
 from Regression import *
 from preprocess_fllght_data import *
@@ -38,8 +38,8 @@ def is_valid_usage():
            and sys.argv[2] in WEATHER_FILE
 
 
-def run_classifier(X_test: pa.DataFrame, X_train: pa.DataFrame, y_test_type: pa.DataFrame,
-                   y_train_type: pa.DataFrame):
+def run_classifier(X_test: pd.DataFrame, X_train: pd.DataFrame, y_test_type: pd.DataFrame,
+                   y_train_type: pd.DataFrame):
     """
     Run the classifier, and print the score of the trained model
     :param X_test: Test feature matrix
@@ -88,12 +88,12 @@ def get_feature_matrix(train_path: str, weather_path: str):
     Get the preprocessed data
     :param train_path: The train data file path
     :param weather_path: The weather data file path
-    :return:  X, y_delay, y_type
+    :return:  design_matrix, y_delay, y_type
     """
     start = time.time()
 
     if os.path.isfile("../pickle/X_10000.csv"):
-        X, y_delay, y_type = read_saved_files()
+        design_matrix, y_delay, y_type = read_saved_files()
 
     else:
         print('load data')
@@ -105,17 +105,17 @@ def get_feature_matrix(train_path: str, weather_path: str):
         print('preprocess weather')
         df = preprocess_weather_data(df, weather_df)
         print('preprocess data')
-        X, y_delay, y_type = preprocess_flight_data(df)
+        design_matrix, y_delay, y_type = preprocess_flight_data(df)
         end = time.time()
         print("load data time: {}".format(end - start))
 
-        X.info()
-        print(X.describe().to_string())
-        print(X.head(50).to_string())
+        design_matrix.info()
+        print(design_matrix.describe().to_string())
+        print(design_matrix.head(50).to_string())
 
-        save_to_file(X, y_delay, y_type)
+        save_to_file(design_matrix, y_delay, y_type)
 
-    return X, y_delay, y_type
+    return design_matrix, y_delay, y_type
 
 
 def save_to_file(X, y_delay, y_type):
@@ -127,26 +127,26 @@ def save_to_file(X, y_delay, y_type):
 
 def read_saved_files():
     print("file exists, load from file")
-    X = pd.read_csv("../pickle/X_10000.csv")
+    design_matrix = pd.read_csv("../pickle/X_10000.csv")
     y_delay = pd.read_csv("../pickle/y_delay_10000.csv")['ArrDelay']
     y_type = pd.read_csv("../pickle/y_type_10000.csv")['DelayFactor']
     print("load complete")
-    return X, y_delay, y_type
+    return design_matrix, y_delay, y_type
 
 
 def start_train(train_path: str, weather_path: str):
     """
     Start train the data
     """
-    X, y_delay, y_type = get_feature_matrix(train_path, weather_path)
+    design_matrix, y_delay, y_type = get_feature_matrix(train_path, weather_path)
     # Split to train and test
-    X_train, y_train_delay, y_train_type, X_test, y_test_delay, y_test_type = split_to_train_test(X,
+    x_train, y_train_delay, y_train_type, x_test, y_test_delay, y_test_type = split_to_train_test(design_matrix,
                                                                                                   y_delay,
                                                                                                   y_type)
 
-    run_regression(X_test, X_train, y_test_delay, y_train_delay)
+    run_regression(x_test, x_train, y_test_delay, y_train_delay)
     # Get classifier model
-    run_classifier(X_test, X_train, y_test_type, y_train_type)
+    run_classifier(x_test, x_train, y_test_type, y_train_type)
 
 
 if __name__ == '__main__':

@@ -3,6 +3,7 @@ import pandas as pd
 
 def preprocess_flight_data(df: pd.DataFrame, train_data=True):
     """
+    :param train_data: Optional, True/False the data includes the real delays (default=True)
     :param df:  Pandas DataFrame contain the following:
                 DayOfWeek:	                     Day of Week
                 FlightDate:	                     Flight Date (yyyy-mm-dd)
@@ -26,7 +27,6 @@ def preprocess_flight_data(df: pd.DataFrame, train_data=True):
     """
     # TODO: might make them dummies as well, check if make prediction better
     # Remove Tail_Number, OriginCityName, OriginState, DestCityName, DestState,
-    # del df['Tail_Number']
     del df['OriginCityName']
     del df['OriginState']
     del df['DestCityName']
@@ -44,9 +44,7 @@ def preprocess_flight_data(df: pd.DataFrame, train_data=True):
     df['CRSDepTime'] = df['CRSDepTime'].str.slice(stop=-3).str.zfill(3)
     df['CRSArrTime'] = df['CRSArrTime'].str.slice(stop=-3).str.zfill(3)
     df = pd.get_dummies(df, columns=['CRSDepTime'])
-    # df['CRSDepTime'] = df['CRSDepTime'].astype('category')
     df = pd.get_dummies(df, columns=['CRSArrTime'])
-    # df['CRSArrTime'] = df['CRSArrTime'].astype('category')
 
     # Split dayInDate, monthInDate, yearInDate and make than dummies (yyyy-mm-dd)
     df['yearInDate'] = df['FlightDate'].str.slice(stop=4)
@@ -96,17 +94,3 @@ def split_to_train_test(df, y_1, y_2, ratio=5):
     """
     cut = int(len(df) / ratio)
     return df[cut:], y_1[cut:], y_2[cut:], df[:cut], y_1[:cut], y_2[:cut]
-
-
-if __name__ == '__main__':
-    df = pd.read_csv("../data/data1k.csv", dtype={'FlightDate': str, 'CRSDepTime': str,
-                                                  'CRSArrTime': str})
-
-    X, y_delay, y_type = preprocess_flight_data(df)
-    X.to_csv("results_X.csv")
-
-    train_X, train_y_1, train_y_2, test_X, test_y_1, test_y_2 = split_to_train_test(X, y_delay,
-                                                                                    y_type)
-    print(len(train_X), len(train_y_1), len(train_y_2), len(test_X), len(test_y_1), len(test_y_2))
-
-    print('done')

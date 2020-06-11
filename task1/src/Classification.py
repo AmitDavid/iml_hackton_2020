@@ -14,13 +14,13 @@ def score(model, X_test, y_test, model_name):
         index=[0])
 
 
-def RandomForest(X_train, y_train, X_test, y_test):
+def random_forest(X_train, y_train, X_test, y_test):
     model_name = 'RandomForest'
-    randtree = RandomForestClassifier(n_estimators=100, min_samples_split=0.01, random_state=0)
-    randtree.fit(X_train, y_train)
-    s = score(randtree, X_test, y_test, model_name)
+    rand_tree = RandomForestClassifier(n_estimators=100, min_samples_split=0.01, random_state=0)
+    rand_tree.fit(X_train, y_train)
+    s = score(rand_tree, X_test, y_test, model_name)
     return s
 
 
 def get_classification_model(X_train, y_train, X_test, y_test):
-    return RandomForest(X_train, y_train, X_test, y_test)
+    return random_forest(X_train, y_train, X_test, y_test)
