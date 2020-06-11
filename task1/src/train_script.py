@@ -44,7 +44,7 @@ def is_valid_usage():
            and sys.argv[2] in WEATHER_FILE
 
 
-def run_classifier(X_test, X_train, y_test_type, y_train_type):
+def run_classifier(X_test: pa.DataFrame, X_train: pa.DataFrame, y_test_type: pa.DataFrame, y_train_type: pa.DataFrame):
     """
     Run the classifier, and print the score of the trained model
     :param X_test: Test feature matrix
@@ -54,8 +54,17 @@ def run_classifier(X_test, X_train, y_test_type, y_train_type):
     """
     start = time.time()
     # Get reg model
-    mask = X_train > 0
-    class_model = get_best_class_model(X_train[mask], y_train_type[mask], X_test[mask], y_test_type[mask])
+    mask_test = y_test_type.notnull()
+    mask_train = y_train_type.notnull()
+
+    y_test_type = y_test_type.astype('category')
+    y_train_type = y_train_type.astype('category')
+    y_test_type, y_train_type = y_test_type.cat.codes, y_train_type.cat.codes
+    y_test_type, y_train_type = y_test_type + 1, y_train_type + 1
+
+    class_model = get_best_class_model(X_train[mask_train], y_train_type[mask_train], X_test[mask_test],
+                                       y_test_type[mask_test])
+    print(class_model.to_string())
     # Run and get score
     # y_train_type_hat = class_model.predict(X_train)
     # y_test_type_hat = class_model.predict(X_test)
@@ -100,9 +109,9 @@ def get_feature_matrix(train_path: str, weather_path: str):
 
     if os.path.isfile("../pickle/X_10000.csv"):
         print("file exists, load from file")
-        X = pd.read_csv("../pickle/X_10000.csv", index_col=False)
-        y_delay = pd.read_csv("../pickle/y_delay_10000.csv", index_col=False).values.ravel()
-        y_type = pd.read_csv("../pickle/y_type_10000.csv", index_col=False).values.ravel()
+        X = pd.read_csv("../pickle/X_10000.csv")
+        y_delay = pd.read_csv("../pickle/y_delay_10000.csv")['ArrDelay']
+        y_type = pd.read_csv("../pickle/y_type_10000.csv")['DelayFactor']
 
     else:
         print('load data')
@@ -139,7 +148,7 @@ def start_train(train_path: str, weather_path: str):
 
     run_regression(X_test, X_train, y_test_delay, y_train_delay)
     # Get classifier model
-    # run_classifier(X_test, X_train, y_test_type, y_train_type)
+    run_classifier(X_test, X_train, y_test_type, y_train_type)
 
 
 if __name__ == '__main__':

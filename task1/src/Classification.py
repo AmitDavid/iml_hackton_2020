@@ -1,5 +1,5 @@
 import pandas as pd
-from preprocess_fllght_data import preprocess_flight_data
+from task1.src.preprocess_fllght_data import preprocess_flight_data
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
@@ -13,7 +13,7 @@ from sklearn.tree import DecisionTreeClassifier
 def score(model, X_test, y_test, model_name):
     y_pred = model.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
-    pre = precision_score(y_test, y_pred, average='weighted')
+    pre = precision_score(y_test, y_pred, average='weighted', zero_division=0)
     rec = recall_score(y_test, y_pred, average='weighted')
     f1 = f1_score(y_test, y_pred, average='weighted')
     return pd.DataFrame(
@@ -78,17 +78,17 @@ def nn(X_train, y_train, X_test, y_test):
 
 
 def get_best_class_model(X_train, y_train, X_test, y_test):
+    dfs = []
+    # dfs.append(Logistic(X_train, y_train, X_test, y_test))
 
-    dfs = Logistic(X_train, y_train, X_test, y_test)
+    dfs.append(DecisionTree(X_train, y_train, X_test, y_test))
 
-    dfs = dfs.append(DecisionTree(X_train, y_train, X_test, y_test), ignore_index=True)
+    dfs.append(RandomForest(X_train, y_train, X_test, y_test))
 
-    dfs = dfs.append(RandomForest(X_train, y_train, X_test, y_test), ignore_index=True)
+    dfs.append(Soft_SVM(X_train, y_train, X_test, y_test))
 
-    dfs = dfs.append(Soft_SVM(X_train, y_train, X_test, y_test))
+    dfs.append(k_nearest_neighbors(X_train, y_train, X_test, y_test))
 
-    dfs = dfs.append(k_nearest_neighbors(X_train, y_train, X_test, y_test), ignore_index=True)
-
-    dfs = dfs.append(nn(X_train, y_train, X_test, y_test), ignore_index=True)
-
-    return dfs
+    dfs.append(nn(X_train, y_train, X_test, y_test))
+    df = pd.concat(dfs)
+    return df
