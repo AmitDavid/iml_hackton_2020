@@ -100,9 +100,9 @@ def get_feature_matrix(train_path: str, weather_path: str):
 
     if os.path.isfile("../pickle/X_10000.csv"):
         print("file exists, load from file")
-        X = pd.read_csv("../pickle/X_10000.csv")
-        y_delay = pd.read_csv("../pickle/y_delay_10000.csv")
-        y_type = pd.read_csv("../pickle/y_type_10000.csv")
+        X = pd.read_csv("../pickle/X_10000.csv", index_col=False)
+        y_delay = pd.read_csv("../pickle/y_delay_10000.csv", index_col=False).values.ravel()
+        y_type = pd.read_csv("../pickle/y_type_10000.csv", index_col=False).values.ravel()
 
     else:
         print('load data')
@@ -121,9 +121,9 @@ def get_feature_matrix(train_path: str, weather_path: str):
         print(X.head(50).to_string())
 
         print("load to file")
-        X.to_csv(f"../pickle/X_10000.csv")
-        y_delay.to_csv(f"../pickle/y_delay_10000.csv")
-        y_type.to_csv(f"../pickle/y_type_10000.csv")
+        X.to_csv(f"../pickle/X_10000.csv", index=False)
+        y_delay.to_csv(f"../pickle/y_delay_10000.csv", index=False)
+        y_type.to_csv(f"../pickle/y_type_10000.csv", index=False)
 
     return X, y_delay, y_type
 

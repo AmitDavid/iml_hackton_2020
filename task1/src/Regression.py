@@ -39,6 +39,10 @@ def lasso_regression(X_train, y_train, X_test, y_test, lam):
     r2 = r2_score(y_test, y_pred)
     EVS = explained_variance_score(y_test, y_pred)
     MSE = mean_squared_error(y_test, y_pred)
+
+    print("save lasso results to file")
+    pd.DataFrame(y_pred).to_csv("../pickle/lasso_pred.csv")
+
     return model_name, y_pred, r2, MSE, score_train, score_test, EVS
 
 
@@ -57,20 +61,25 @@ def Polynomial_linear(X_train, y_train, X_test, y_test, degree):
 
 def Decision_trees(X_train, y_train, X_test, y_test):
     model_name = 'Decision trees'
-    regressor = DecisionTreeRegressor(random_state=0, max_features=0.5)
+    regressor = DecisionTreeRegressor(random_state=42, max_features=0.75, min_samples_split=0.01, min_samples_leaf=20)
     regressor.fit(X_train, y_train)
     score_train = regressor.score(X_train, y_train)
     score_test = regressor.score(X_test, y_test)
     y_pred = regressor.predict(X_test)
+
     r2 = r2_score(y_test, y_pred)
     EVS = explained_variance_score(y_test, y_pred)
     MSE = mean_squared_error(y_test, y_pred)
+
+    print("save lasso results to file")
+    pd.DataFrame(y_pred).to_csv("../pickle/dec_tree_pred.csv")
+
     return model_name, y_pred, r2, MSE, score_train, score_test, EVS
 
 
 def Random_forest_trees(X_train, y_train, X_test, y_test):
     model_name = 'Random forest'
-    forest = RandomForestRegressor(n_estimators=100, max_depth=80, min_samples_leaf=0.005, random_state=0)
+    forest = RandomForestRegressor(n_estimators=100, max_depth=75, min_samples_leaf=0.01, random_state=0)
     forest.fit(X_train, y_train)
     score_train = forest.score(X_train, y_train)
     score_test = forest.score(X_test, y_test)
@@ -91,7 +100,7 @@ def get_best_reg_model(X_train, y_train, X_test, y_test):
     #     {'model_name': model_name, 'r2': r2, 'MSE': MSE, 'score_train': score_train,
     #      'score_test': score_test, 'EVS': EVS}, index=[0]))
 
-    print("Polynomial linear")
+    # print("Polynomial linear")
     # model_name, y_pred, r2, MSE, score_train, score_test, EVS = Polynomial_linear(X_train, y_train,
     #                                                                               X_test, y_test,
     #                                                                               degree=3)
@@ -106,21 +115,21 @@ def get_best_reg_model(X_train, y_train, X_test, y_test):
         {'model_name': model_name, 'r2': r2, 'MSE': MSE, 'score_train': score_train,
          'score_test': score_test, 'EVS': EVS}, index=[0]))
 
-    print("Random forest trees")
-    model_name, y_pred, r2, MSE, score_train, score_test, EVS = Random_forest_trees(X_train,
-                                                                                    y_train, X_test,
-                                                                                    y_test)
-    dfs.append(DataFrame(
-        {'model_name': model_name, 'r2': r2, 'MSE': MSE, 'score_train': score_train,
-         'score_test': score_test, 'EVS': EVS}, index=[0]))
+    # print("Random forest trees")
+    # model_name, y_pred, r2, MSE, score_train, score_test, EVS = Random_forest_trees(X_train,
+    #                                                                                 y_train, X_test,
+    #                                                                                 y_test)
+    # dfs.append(DataFrame(
+    #     {'model_name': model_name, 'r2': r2, 'MSE': MSE, 'score_train': score_train,
+    #      'score_test': score_test, 'EVS': EVS}, index=[0]))
 
-    print("Lasso regression")
-    model_name, y_pred, r2, MSE, score_train, score_test, EVS = lasso_regression(X_train, y_train,
-                                                                                 X_test, y_test,
-                                                                                 lam=.5)
-    dfs.append(DataFrame(
-        {'model_name': model_name, 'r2': r2, 'MSE': MSE, 'score_train': score_train,
-         'score_test': score_test, 'EVS': EVS}, index=[0]))
+    # print("Lasso regression")
+    # model_name, y_pred, r2, MSE, score_train, score_test, EVS = lasso_regression(X_train, y_train,
+    #                                                                              X_test, y_test,
+    #                                                                              lam=.0005)
+    # dfs.append(DataFrame(
+    #     {'model_name': model_name, 'r2': r2, 'MSE': MSE, 'score_train': score_train,
+    #      'score_test': score_test, 'EVS': EVS}, index=[0]))
 
     dfs = pd.concat(dfs)
     return dfs
