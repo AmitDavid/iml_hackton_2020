@@ -79,6 +79,7 @@ def nn(X_train, y_train, X_test, y_test):
 
 def get_best_class_model(X_train, y_train, X_test, y_test):
     dfs = []
+
     # dfs.append(Logistic(X_train, y_train, X_test, y_test))
 
     dfs.append(DecisionTree(X_train, y_train, X_test, y_test))
@@ -90,5 +91,6 @@ def get_best_class_model(X_train, y_train, X_test, y_test):
     dfs.append(k_nearest_neighbors(X_train, y_train, X_test, y_test))
 
     dfs.append(nn(X_train, y_train, X_test, y_test))
+
     df = pd.concat(dfs)
     return df

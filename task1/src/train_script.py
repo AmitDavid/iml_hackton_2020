@@ -31,14 +31,6 @@ TRAIN_DATA_FILE = {
 }
 
 
-def get_reg_score(y: pd.DataFrame, y_hat: pd.DataFrame) -> float:
-    return -1.0
-
-
-def get_class_score(y: pd.DataFrame, y_hat: pd.DataFrame) -> float:
-    return sum(y == y_hat)
-
-
 def is_valid_usage():
     return len(sys.argv) == NUM_OF_ARGS and sys.argv[1] in TRAIN_DATA_FILE \
            and sys.argv[2] in WEATHER_FILE
