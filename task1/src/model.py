@@ -1,4 +1,5 @@
 import pickle
+import sys
 
 from task1.src.preprocess_fllght_data import *
 from task1.src.weather_preprocess import *
@@ -26,15 +27,15 @@ class FlightPredictor:
         self.class_model = pickle.load(class_file)
         class_file.close()
 
-    def predict(self, x):
+    def predict(self, X):
         """
         Recieves a pandas DataFrame of shape (m, 15) with m flight features, and predicts their
         delay at arrival and the main factor for the delay.
-        @param x: A pandas DataFrame with shape (m, 15)
+        @param X: A pandas DataFrame with shape (m, 15)
         @return: A pandas DataFrame with shape (m, 2) with your prediction
         """
         # Preprocess data
-        df = preprocess_weather_data(df, weather_df)
+        df = preprocess_weather_data(X, weather_df)
         X = preprocess_flight_data(df)
 
         y_delay_hat = self.reg_model.predict(X)
@@ -113,7 +114,8 @@ if __name__ == '__main__':
         y_test_delay, y_test_type = split_to_train_test(X, y_delay, y_type)
 
     # Get reg model
-    reg_model = get_best_reg_model(X_train, y_train_delay, X_test, y_test_delay)
+    mask = y_delay > 0
+    reg_model = get_best_reg_model(X[mask], y_type[mask])
 
     # Run and get score
     y_train_delay_hat = reg_model.predict(X_train)
