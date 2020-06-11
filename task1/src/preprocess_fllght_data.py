@@ -79,7 +79,7 @@ def split_to_train_test(df, y_1, y_2, ratio=5):
     :return:
     """
     cut = int(len(df) / ratio)
-    return df[cut:], y_1[cut:], y_2[cut:], df[:cut], y_1[:cut],  y_2[:cut]
+    return df[cut:], y_1[cut:], y_2[cut:], df[:cut], y_1[:cut], y_2[:cut]
 
 
 if __name__ == '__main__':
@@ -89,8 +89,8 @@ if __name__ == '__main__':
     X, y_delay, y_type = preprocess_flight_data(df)
     X.to_csv("results_X.csv")
 
-    train_X, train_y_1, train_y_2, test_X, test_y_1, test_y_2 = split_to_train_test(X, y_delay, y_type)
+    train_X, train_y_1, train_y_2, test_X, test_y_1, test_y_2 = split_to_train_test(X, y_delay,
+                                                                                    y_type)
     print(len(train_X), len(train_y_1), len(train_y_2), len(test_X), len(test_y_1), len(test_y_2))
 
     print('done')
-

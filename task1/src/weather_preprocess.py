@@ -1,6 +1,7 @@
-import pandas as pa
 import datetime
 import time
+
+import pandas as pa
 
 SNOW_THRESHOLD = 10
 
@@ -8,8 +9,10 @@ MAX_TEMP_THRESHOLD = 165
 
 MATCH_COLS = ['day', 'station']
 
-NUMERIC_COLS = ['max_temp_f', 'min_temp_f', 'precip_in', 'avg_wind_speed_kts', 'avg_rh', 'max_dewpoint_f',
-                'min_dewpoint_f', 'avg_wind_drct', 'min_rh', 'avg_rh', 'max_rh', 'snow_in', 'snowd_in',
+NUMERIC_COLS = ['max_temp_f', 'min_temp_f', 'precip_in', 'avg_wind_speed_kts', 'avg_rh',
+                'max_dewpoint_f',
+                'min_dewpoint_f', 'avg_wind_drct', 'min_rh', 'avg_rh', 'max_rh', 'snow_in',
+                'snowd_in',
                 'max_wind_speed_kts', 'max_wind_gust_kts']
 NEW_COLS = ['avg_temp_f']
 RELEVANT_COLS = NUMERIC_COLS + MATCH_COLS
@@ -71,7 +74,9 @@ def handle_dates(flight_data_df: pa.DataFrame, weather_df: pa.DataFrame):
     dep = flight_data_df['CRSDepTime']
     arr = flight_data_df['CRSArrTime']
     flight_data_df['day_arr'] = flight_data_df['CRSDepTime'].where(dep < arr,
-                                                                   flight_data_df['day'] + datetime.timedelta(days=1))
+                                                                   flight_data_df[
+                                                                       'day'] + datetime.timedelta(
+                                                                       days=1))
     flight_data_df['day_arr'].where(dep > arr, flight_data_df['day'], inplace=True)
     flight_data_df['day_arr'] = pa.to_datetime(arg=flight_data_df['day_arr'])
 
@@ -91,7 +96,8 @@ def preprocess_weather_data(flight_data_df: pa.DataFrame, weather_df: pa.DataFra
 
     # merge by arrival date and destination
     weather_df.rename(columns={'Origin': 'Dest', 'day': 'day_arr'}, inplace=True)
-    merged = merged.merge(weather_df, on=['Dest', 'day_arr'], validate="m:1", how='left', suffixes=('_dep', '_arr'))
+    merged = merged.merge(weather_df, on=['Dest', 'day_arr'], validate="m:1", how='left',
+                          suffixes=('_dep', '_arr'))
 
     # convert day_arr back to the same format as FlightDate, dropping the col that were required for merging
     merged['day_arr'] = merged['day_arr'].dt.strftime("%Y-%m-%d")
