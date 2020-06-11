@@ -157,10 +157,14 @@ def start_train(train_path: str, weather_path: str):
 
 
 def model_test():
-    matrix_x = pd.read_csv(PATH_TO_SMALL_TRAIN_DATA_PATH)
+    start = time.time()
+    matrix_x = pd.read_csv(PATH_TO_MEDIUM_TRAIN_DATA_PATH)
+    matrix_x = matrix_x.drop(columns=['ArrDelay', 'DelayFactor'])
     my_model = model.FlightPredictor(PATH_TO_WEATHER_FILE_PATH)
     y = my_model.predict(matrix_x)
+    end = time.time()
     print(y.to_string())
+    print(f"total time: {end - start}")
 
 
 if __name__ == '__main__':

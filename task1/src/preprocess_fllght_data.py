@@ -26,9 +26,9 @@ def preprocess_flight_data(df: pd.DataFrame, train_data=True):
     :return: X - Processed data frame. y_delay - Time difference , y_type - Type fo delay
     """
     # Convert to strings
-    df['FlightDate'].astype(str)
-    df['CRSDepTime'].astype(str)
-    df['CRSArrTime'].astype(str)
+    df['FlightDate'] = df['FlightDate'].astype(str)
+    df['CRSDepTime'] = df['CRSDepTime'].astype(str)
+    df['CRSArrTime'] = df['CRSArrTime'].astype(str)
 
     # Remove Tail_Number, OriginCityName, OriginState, DestCityName, DestState,
     del df['OriginCityName']
