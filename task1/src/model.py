@@ -41,6 +41,9 @@ class FlightPredictor:
         y_delay_hat = self.__reg_model.predict(design_matrix)
         y_type_hat = self.__class_model.predict(design_matrix)
 
+        x = {1: "", 2: "", 3: "", 4: ""}
+        y_type_hat = x[y_type_hat]
+
         # cols = ['ArrDelay', 'DelayFactor']
         # list_of_series = [pd.Series(y_delay_hat, index=cols), pd.Series(y_type_hat, index=cols)]
         #
