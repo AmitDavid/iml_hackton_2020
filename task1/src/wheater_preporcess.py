@@ -1,6 +1,9 @@
 import pandas as pa
 import time
 import os
+import sys
+
+NUM_OF_ARGS = 2
 
 SNOW_THRESHOLD = 10
 
@@ -8,6 +11,14 @@ MAX_TEMP_THRESHOLD = 165
 MY_DIR = os.path.dirname(__file__)
 WEATHER_FILE_PATH = os.path.join(MY_DIR, '..', 'data', 'all_weather_data.csv')
 TRAIN_DATA_FILE_PATH = os.path.join(MY_DIR, '..', 'data', 'train_data.csv')
+SMALL_TRAIN_DATA_PATH = os.path.join(MY_DIR, '..', 'small_data', 'data1k.csv')
+MEDIUM_TRAIN_DATA_PATH = os.path.join(MY_DIR, '..', 'small_data', 'data10k.csv')
+
+TRAIN_DATA = {
+    '1k': SMALL_TRAIN_DATA_PATH,
+    '10k': MEDIUM_TRAIN_DATA_PATH,
+    'all_data': TRAIN_DATA_FILE_PATH
+}
 MATCH_COLS = ['day', 'station']
 
 NUMERIC_COLS = ['max_temp_f', 'min_temp_f', 'precip_in', 'avg_wind_speed_kts', 'avg_rh', 'max_dewpoint_f',
@@ -37,7 +48,7 @@ def fix_snow_cols(df: pa.DataFrame):
         df[snow_col].mask(df[snow_col] < 0, inplace=True)
 
 
-def preprocess():
+def get_weather_df():
     """
     Preprocess of the weather dataset
     """
@@ -48,19 +59,18 @@ def preprocess():
     fix_snow_cols(df)
     replace_na(df)
     df['avg_temp_f'] = (df['max_temp_f'] + df['min_temp_f']) / 2
+    df.rename(columns={'day': 'FlightDate', 'station': 'Origin'}, inplace=True)
     return df
 
 
-def main():
+def main(data_path):
     """
     Main driver to get DataFrame with the flight data combined with weather
     :return: Merged DataFrame of data and weather
     """
     start = time.time()
-    weather_df = preprocess()
-    flight_data_df = pa.read_csv(TRAIN_DATA_FILE_PATH, low_memory=False)
-    weather_df.rename(columns={'day': 'FlightDate', 'station': 'Origin'}, inplace=True)
-    date_bck = flight_data_df['FlightDate'].copy()
+    weather_df = get_weather_df()
+    flight_data_df = pa.read_csv(data_path, low_memory=False)
     flight_data_df['FlightDate'] = pa.to_datetime(arg=flight_data_df['FlightDate'])
     weather_df['FlightDate'] = pa.to_datetime(arg=weather_df['FlightDate'])
     # changed date format to "datetime64 dtype", as the two are not fitting at the moment
@@ -71,6 +81,16 @@ def main():
     print("Execution time in sec: {}".format(end - start))
 
 
+def is_valid_usage():
+    return len(sys.argv) == NUM_OF_ARGS and (sys.argv[1] != 'small_data' or sys.argv[1] != 'all_data')
+
+
 if __name__ == '__main__':
-    main()
+    if is_valid_usage():
+        main(TRAIN_DATA[sys.argv[1]])
+    else:
+        print("Usage: python weather_preprocess.py X \n"
+              "'X = 1k' for 1k flight data\n"
+              "'X = 10k' for 1k flight data\n"
+              "'X = all_data' for all data")
     pass
