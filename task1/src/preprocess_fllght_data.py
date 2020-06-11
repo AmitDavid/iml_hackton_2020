@@ -58,6 +58,17 @@ def preprocess_flight_data(df: pd.DataFrame):
 
     del df['FlightDate']
 
+    # Split dayInDate, monthInDate, yearInDate and make than dummies (yyyy-mm-dd)
+    df['yearInDateArr'] = df['day_arr'].str.slice(stop=4)
+    df['monthInDateArr'] = df['day_arr'].str.slice(start=5, stop=7)
+    df['dayInDateArr'] = df['day_arr'].str.slice(start=8)
+
+    df = pd.get_dummies(df, columns=['yearInDateArr'])
+    df = pd.get_dummies(df, columns=['monthInDateArr'])
+    df = pd.get_dummies(df, columns=['dayInDateArr'])
+
+    del df['day_arr']
+
     # split ArrDelay and DelayFactor to results DataFrame
     y_delay = df['ArrDelay']
     del df['ArrDelay']

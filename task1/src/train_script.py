@@ -2,6 +2,8 @@ import sys
 import os
 from task1.src.preprocess_fllght_data import *
 from task1.src.weather_preprocess import *
+from task1.src.Classification import *
+from task1.src.Regression import *
 
 NUM_OF_ARGS = 3
 
@@ -98,9 +100,9 @@ def get_feature_matrix(train_path: str, weather_path: str):
 
     if os.path.isfile("../pickle/X_10000.csv"):
         print("file exists, load from file")
-        X = pd.read_CSV("../pickle/X_10000.csv")
-        y_delay = pd.read_CSV("../pickle/y_delay_10000.csv")
-        y_type = pd.read_CSV("../pickle/y_type_10000.csv")
+        X = pd.read_csv("../pickle/X_10000.csv")
+        y_delay = pd.read_csv("../pickle/y_delay_10000.csv")
+        y_type = pd.read_csv("../pickle/y_type_10000.csv")
 
     else:
         print('load data')
