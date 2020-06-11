@@ -2,7 +2,6 @@ import pandas as pa
 import datetime
 import time
 
-
 SNOW_THRESHOLD = 10
 
 MAX_TEMP_THRESHOLD = 165
@@ -13,7 +12,7 @@ NUMERIC_COLS = ['max_temp_f', 'min_temp_f', 'precip_in', 'avg_wind_speed_kts', '
                 'min_dewpoint_f', 'avg_wind_drct', 'min_rh', 'avg_rh', 'max_rh', 'snow_in', 'snowd_in',
                 'max_wind_speed_kts', 'max_wind_gust_kts']
 NEW_COLS = ['avg_temp_f']
-TABLE_COLS = NUMERIC_COLS + MATCH_COLS
+RELEVANT_COLS = NUMERIC_COLS + MATCH_COLS
 
 
 def replace_na(df: pa.DataFrame):
@@ -36,21 +35,32 @@ def fix_snow_cols(df: pa.DataFrame):
         df[snow_col].mask(df[snow_col] < 0, inplace=True)
 
 
-def preprocess_weather_df(df) -> pa.DataFrame:
+def drop_unused_cols(df: pa.DataFrame):
+    for col in df:
+        if col not in RELEVANT_COLS:
+            df.drop(columns=col, inplace=True)
+
+
+def preprocess_weather_df(df: pa.DataFrame) -> pa.DataFrame:
     """
     Preprocess of the weather dataset
     """
     df[NUMERIC_COLS] = df[NUMERIC_COLS].apply(pa.to_numeric, errors='coerce')
+
+    # drops rows with no info (as max_temp_f indicates it)
     df.dropna(subset=['max_temp_f'], inplace=True)
     df['max_temp_f'].mask(df['max_temp_f'] > MAX_TEMP_THRESHOLD)
+
     fix_snow_cols(df)
     replace_na(df)
+    drop_unused_cols(df)
+
     df['avg_temp_f'] = (df['max_temp_f'] + df['min_temp_f']) / 2
     df.rename(columns={'station': 'Origin'}, inplace=True)
     return df
 
 
-def handle_dates(flight_data_df, weather_df):
+def handle_dates(flight_data_df: pa.DataFrame, weather_df: pa.DataFrame):
     """
     Converts date format columns to datetime, adding arrival date
     :param flight_data_df: The flight train data
@@ -83,9 +93,12 @@ def preprocess_weather_data(flight_data_df: pa.DataFrame, weather_df: pa.DataFra
     weather_df.rename(columns={'Origin': 'Dest', 'day': 'day_arr'}, inplace=True)
     merged = merged.merge(weather_df, on=['Dest', 'day_arr'], validate="m:1", how='left', suffixes=('_dep', '_arr'))
 
+    merged['day_arr'] = merged['day_arr'].dt.strftime("%d/%m/%Y")
+    merged.drop(columns='day', inplace=True)
+
     end = time.time()
     merged.info()
     print(merged.describe().to_string())
+    print(merged.head(50).to_string())
     print("Execution time in sec: {}".format(end - start))
     return merged
-
