@@ -77,7 +77,7 @@ def run_regression(X_test, X_train, y_test_delay, y_train_delay):
 
     print("run reg models")
     reg_model = get_best_reg_model(X_train, y_train_delay, X_test, y_test_delay)
-    print(reg_model)
+    print(reg_model.to_string())
 
     # Run and get score
     # y_train_delay_hat = reg_model.predict(X_train)
@@ -138,7 +138,7 @@ def start_train(train_path: str, weather_path: str):
 
     run_regression(X_test, X_train, y_test_delay, y_train_delay)
     # Get classifier model
-    run_classifier(X_test, X_train, y_test_type, y_train_type)
+    # run_classifier(X_test, X_train, y_test_type, y_train_type)
 
 
 if __name__ == '__main__':
