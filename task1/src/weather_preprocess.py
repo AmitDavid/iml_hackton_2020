@@ -18,12 +18,17 @@ NEW_COLS = ['avg_temp_f']
 RELEVANT_COLS = NUMERIC_COLS + MATCH_COLS
 
 
-def replace_na(df: pa.DataFrame):
+def replace_na(df: pa.DataFrame, is_merged_df=False):
     """
     Replace all na values with the mean of the column
+    :param is_merged_df: Is it the merged DataFrame
     :param df: data set
     """
-    for col in NUMERIC_COLS:
+    cols = NUMERIC_COLS
+    if is_merged_df:
+        cols = [col + '_arr' for col in NUMERIC_COLS + NEW_COLS]
+        cols += [col + '_dep' for col in NUMERIC_COLS + NEW_COLS]
+    for col in cols:
         df[col].fillna(df[col].mean(), inplace=True)
 
 
@@ -97,9 +102,10 @@ def preprocess_weather_data(flight_data_df: pa.DataFrame, weather_df: pa.DataFra
     weather_df.rename(columns={'Origin': 'Dest', 'day': 'day_arr'}, inplace=True)
     merged = merged.merge(weather_df, on=['Dest', 'day_arr'], validate="m:1", how='left',
                           suffixes=('_dep', '_arr'))
-
+    replace_na(merged, is_merged_df=True)
     # convert day_arr back to the same format as FlightDate, dropping the col that were required for merging
     merged['day_arr'] = merged['day_arr'].dt.strftime("%Y-%m-%d")
     merged.drop(columns='day', inplace=True)
+    merged.info()
 
     return merged
