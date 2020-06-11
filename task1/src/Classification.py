@@ -47,7 +47,7 @@ def DecisionTree(X_train, y_train, X_test, y_test):
 
 def RandomForest(X_train, y_train, X_test, y_test):
     model_name = 'RandomForest'
-    randtree = RandomForestClassifier(n_estimators=100, min_samples_split=0.1, random_state=0)
+    randtree = RandomForestClassifier(n_estimators=100, min_samples_split=0.01, random_state=0)
     randtree.fit(X_train, y_train)
     s = score(randtree, X_test, y_test, model_name)
     return s
@@ -79,18 +79,23 @@ def nn(X_train, y_train, X_test, y_test):
 
 def get_best_class_model(X_train, y_train, X_test, y_test):
     dfs = []
-
     # dfs.append(Logistic(X_train, y_train, X_test, y_test))
-
+    print("start DecisionTree")
     dfs.append(DecisionTree(X_train, y_train, X_test, y_test))
+    print("end DecisionTree")
 
+    print("start RandomForest")
     dfs.append(RandomForest(X_train, y_train, X_test, y_test))
+    print("end RandomForest")
 
-    dfs.append(Soft_SVM(X_train, y_train, X_test, y_test))
+    # print("start Soft_SVM")
+    # dfs.append(Soft_SVM(X_train, y_train, X_test, y_test))
+    # print("end Soft_SVM")
 
-    dfs.append(k_nearest_neighbors(X_train, y_train, X_test, y_test))
+    # print("start k_nearest_neighbors")
+    # dfs.append(k_nearest_neighbors(X_train, y_train, X_test, y_test))
+    # print("end k_nearest_neighbors")
 
-    dfs.append(nn(X_train, y_train, X_test, y_test))
-
+    # dfs.append(nn(X_train, y_train, X_test, y_test))
     df = pd.concat(dfs)
     return df

@@ -104,6 +104,7 @@ def get_feature_matrix(train_path: str, weather_path: str):
         X = pd.read_csv("../pickle/X_10000.csv")
         y_delay = pd.read_csv("../pickle/y_delay_10000.csv")['ArrDelay']
         y_type = pd.read_csv("../pickle/y_type_10000.csv")['DelayFactor']
+        print("load complete")
 
     else:
         print('load data')
@@ -138,7 +139,7 @@ def start_train(train_path: str, weather_path: str):
     # Split to train and test
     X_train, y_train_delay, y_train_type, X_test, y_test_delay, y_test_type = split_to_train_test(X, y_delay, y_type)
 
-    run_regression(X_test, X_train, y_test_delay, y_train_delay)
+    # run_regression(X_test, X_train, y_test_delay, y_train_delay)
     # Get classifier model
     run_classifier(X_test, X_train, y_test_type, y_train_type)
 
