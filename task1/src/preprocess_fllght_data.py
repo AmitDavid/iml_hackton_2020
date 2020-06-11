@@ -25,15 +25,16 @@ def preprocess_flight_data(df: pd.DataFrame):
     :return: X - Processed data frame. y_delay - Time difference , y_type - Type fo delay
     """
     # TODO: might make them dummies as well, check if make prediction better
-    # Remove OriginCityName, OriginState, DestCityName, DestState,
+    # Remove Tail_Number, OriginCityName, OriginState, DestCityName, DestState,
+    del df['Tail_Number']
     del df['OriginCityName']
     del df['OriginState']
     del df['DestCityName']
     del df['DestState']
 
-    # Get categorical features (dummies) for dayOfTheWeek, Reporting_Airline, Tail_Number
+    # Get categorical features (dummies) for dayOfTheWeek, Reporting_Airline
     # Flight_Number_Reporting_Airline, Origin, Dest
-    df = pd.get_dummies(df, columns=['DayOfWeek', 'Reporting_Airline', 'Tail_Number',
+    df = pd.get_dummies(df, columns=['DayOfWeek', 'Reporting_Airline',
                                      'Flight_Number_Reporting_Airline', 'Origin', 'Dest'])
 
     # Get hour and ten of minutes of CRSDepTime and CRSArrTime
