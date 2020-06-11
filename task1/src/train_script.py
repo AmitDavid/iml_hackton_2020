@@ -11,21 +11,21 @@ PATH_TO_TEST_DATA = "../data/train_data.csv"
 PATH_TO_WEATHER_DATA = "../data/all_weather_data.csv"
 
 MY_DIR = os.path.dirname(__file__)
-WEATHER_FILE_PATH = os.path.join(MY_DIR, '..', 'data', 'all_weather_data.csv')
-WEATHER_JFK_PATH = os.path.join(MY_DIR, '..', 'small_data', 'weather_jfk.csv')
-TRAIN_DATA_FILE_PATH = os.path.join(MY_DIR, '..', 'data', 'train_data.csv')
-SMALL_TRAIN_DATA_PATH = os.path.join(MY_DIR, '..', 'small_data', 'data1k.csv')
-MEDIUM_TRAIN_DATA_PATH = os.path.join(MY_DIR, '..', 'small_data', 'data10k.csv')
+PATH_TO_WEATHER_FILE_PATH = os.path.join(MY_DIR, '..', 'data', 'all_weather_data.csv')
+PATH_TO_WEATHER_JFK_PATH = os.path.join(MY_DIR, '..', 'small_data', 'weather_jfk.csv')
+PATH_TO_TRAIN_DATA_FILE_PATH = os.path.join(MY_DIR, '..', 'data', 'train_data.csv')
+PATH_TO_SMALL_TRAIN_DATA_PATH = os.path.join(MY_DIR, '..', 'small_data', 'data1k.csv')
+PATH_TO_MEDIUM_TRAIN_DATA_PATH = os.path.join(MY_DIR, '..', 'small_data', 'data10k.csv')
 
 WEATHER_FILE = {
-    'all_weather': WEATHER_FILE_PATH,
-    'jfk': WEATHER_JFK_PATH
+    'all_weather': PATH_TO_WEATHER_FILE_PATH,
+    'jfk': PATH_TO_WEATHER_JFK_PATH
 }
 
-TRAIN_DATA = {
-    '1k': SMALL_TRAIN_DATA_PATH,
-    '10k': MEDIUM_TRAIN_DATA_PATH,
-    'all_data': TRAIN_DATA_FILE_PATH
+TRAIN_DATA_FILE = {
+    '1k': PATH_TO_SMALL_TRAIN_DATA_PATH,
+    '10k': PATH_TO_MEDIUM_TRAIN_DATA_PATH,
+    'all_data': PATH_TO_TRAIN_DATA_FILE_PATH
 }
 
 
@@ -51,6 +51,7 @@ def run_classifier(X_test, X_train, y_test_type, y_train_type):
     :param y_test_type: Test types
     :param y_train_type: Train types
     """
+    start = time.time()
     # Get reg model
     mask = X_train > 0
     class_model = get_best_class_model(X_train[mask], y_train_type[mask], X_test[mask], y_test_type[mask])
@@ -59,6 +60,8 @@ def run_classifier(X_test, X_train, y_test_type, y_train_type):
     # y_test_type_hat = class_model.predict(X_test)
     # print('class train score: ', get_class_score(y_train_type, y_train_type_hat))
     # print('class test score: ', get_class_score(y_test_type, y_test_type_hat))
+    end = time.time()
+    print("run classifier time: {}".format(end - start))
 
 
 def run_regression(X, X_test, X_train, y_delay, y_test_delay, y_train_delay, y_type):
@@ -69,30 +72,38 @@ def run_regression(X, X_test, X_train, y_delay, y_test_delay, y_train_delay, y_t
     :param y_test_type: Test types
     :param y_train_type: Train types
     """
+    start = time.time()
     reg_model = get_best_reg_model(X_train, y_train_delay)
     # Run and get score
     y_train_delay_hat = reg_model.predict(X_train)
     y_test_delay_hat = reg_model.predict(X_test)
     print('reg train score: ', get_reg_score(y_train_delay, y_train_delay_hat))
     print('reg test score: ', get_reg_score(y_test_delay, y_test_delay_hat))
+    end = time.time()
+    print("run reg time: {}".format(end - start))
 
 
-def get_feature_matrix():
+def get_feature_matrix(train_path: str, weather_path: str):
     """
     Get the preprocessed data
+    :param train_path: The train data file path
+    :param weather_path: The weather data file path
     :return:  X, y_delay, y_type
     """
-    df = pd.read_csv(PATH_TO_1K_TRAIN_DATA, dtype={'FlightDate': str, 'CRSDepTime': str, 'CRSArrTime': str})
-    weather_df = pd.read_csv(PATH_TO_WEATHER_DATA)
+    start = time.time()
+    df = pd.read_csv(train_path, dtype={'FlightDate': str, 'CRSDepTime': str, 'CRSArrTime': str})
+    weather_df = pd.read_csv(weather_path, low_memory=False)
     df = preprocess_weather_data(df, weather_df)
+    end = time.time()
+    print("load data time: {}".format(end - start))
     return preprocess_flight_data(df)
 
 
-def start_train():
+def start_train(train_path: str, weather_path: str):
     """
     Start train the data
     """
-    X, y_delay, y_type = get_feature_matrix()
+    X, y_delay, y_type = get_feature_matrix(train_path, weather_path)
     # Split to train and test
     X_train, y_train_delay, y_train_type, X_test, y_test_delay, y_test_type = split_to_train_test(X, y_delay, y_type)
     run_regression(X, X_test, X_train, y_delay, y_test_delay, y_train_delay, y_type)
@@ -102,7 +113,7 @@ def start_train():
 
 if __name__ == '__main__':
     if is_valid_usage():
-        start_train()
+        start_train(TRAIN_DATA_FILE[sys.argv[0]], WEATHER_FILE[sys.argv[1]])
     else:
         print("Usage: python weather_preprocess.py X Y\n"
               "'X = 1k/10k/all_data' for 1k/10k/all_data flight data\n"
