@@ -38,8 +38,8 @@ def preprocess_flight_data(df: pd.DataFrame):
 
     # Get hour and ten of mintues of CRSDepTime and CRSArrTime
     # Tf flight was at 1546.0 (15:46), save it to 154 dummy
-    df['CRSDepTime'] = df['CRSDepTime'].str.slice(stop=-3)
-    df['CRSArrTime'] = df['CRSArrTime'].str.slice(stop=-3)
+    df['CRSDepTime'] = df['CRSDepTime'].str.slice(stop=-3).str.zfill(3)
+    df['CRSArrTime'] = df['CRSArrTime'].str.slice(stop=-3).str.zfill(3)
     df = pd.get_dummies(df, columns=['CRSDepTime'])
     df = pd.get_dummies(df, columns=['CRSArrTime'])
 
@@ -64,7 +64,7 @@ def preprocess_flight_data(df: pd.DataFrame):
     # CRSElapsedTime and Distance left unchanged
     return df, y
 
-"""
+
 if __name__ == '__main__':
     df = pd.read_csv("../data/data1k.csv", dtype={'FlightDate': str, 'CRSDepTime': str,
                                                   'CRSArrTime': str})
@@ -72,4 +72,4 @@ if __name__ == '__main__':
     X.to_csv("results_X.csv")
     y.to_csv("results_y.csv")
     print('done')
-"""
+
