@@ -1,11 +1,8 @@
-import numpy as np
-import pandas as pd
-import sklearn as sk
-
 PATH_TO_TRAIN_DATA = "../data/train_data.csv"
 PATH_TO_TEST_DATA = "../data/train_data.csv"
 PATH_TO_WEATHER_DATA = "../data/all_weather_data.csv"
 CLASSIFICATION = ['CarrierDelay', 'WeatherDelay', 'NASDelay', 'LateAircraftDelay']
+
 
 class FlightPredictor:
     def __init__(self, path_to_weather=PATH_TO_WEATHER_DATA, path_to_data=PATH_TO_TRAIN_DATA):
