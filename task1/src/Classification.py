@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
+
 def score(model, X_test, y_test, model_name):
     y_pred = model.predict(X_test)
     acc = accuracy_score(y_test, y_pred)

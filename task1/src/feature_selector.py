@@ -394,8 +394,8 @@ class FeatureSelector():
             len(self.feature_importances) -
             len(self.record_low_importance), self.cumulative_importance))
         print('%d features do not contribute to cumulative importance of %0.2f.\n' % (
-        len(self.ops['low_importance']),
-        self.cumulative_importance))
+            len(self.ops['low_importance']),
+            self.cumulative_importance))
 
     def identify_all(self, selection_params):
         """
@@ -429,8 +429,8 @@ class FeatureSelector():
         self.n_identified = len(self.all_identified)
 
         print('%d total features out of %d identified for removal after one-hot encoding.\n' % (
-        self.n_identified,
-        self.data_all.shape[1]))
+            self.n_identified,
+            self.data_all.shape[1]))
 
     def check_removal(self, keep_one_hot=True):
 
@@ -677,7 +677,7 @@ class FeatureSelector():
             plt.show();
 
             print('%d features required for %0.2f of cumulative importance' % (
-            importance_index + 1, threshold))
+                importance_index + 1, threshold))
 
     def reset_plot(self):
         plt.rcParams = plt.rcParamsDefault

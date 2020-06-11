@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def preprocess_flight_data(df: pd.DataFrame):
+def preprocess_flight_data(df: pd.DataFrame, train_data=True):
     """
     :param df:  Pandas DataFrame contain the following:
                 DayOfWeek:	                     Day of Week
@@ -34,7 +34,8 @@ def preprocess_flight_data(df: pd.DataFrame):
 
     # Get categorical features (dummies) for dayOfTheWeek, Reporting_Airline
     # Flight_Number_Reporting_Airline, Origin, Dest
-    df = pd.get_dummies(df, columns=['DayOfWeek', 'Reporting_Airline', 'Tail_Number', 'Origin', 'Dest'])
+    df = pd.get_dummies(df,
+                        columns=['DayOfWeek', 'Reporting_Airline', 'Tail_Number', 'Origin', 'Dest'])
     df['Flight_Number_Reporting_Airline'] = df['Flight_Number_Reporting_Airline'].astype('category')
 
     # Get hour and ten of minutes of CRSDepTime and CRSArrTime
@@ -69,15 +70,19 @@ def preprocess_flight_data(df: pd.DataFrame):
 
     del df['day_arr']
 
-    # split ArrDelay and DelayFactor to results DataFrame
-    y_delay = df['ArrDelay']
-    del df['ArrDelay']
+    if train_data:
+        # split ArrDelay and DelayFactor to results DataFrame
+        y_delay = df['ArrDelay']
+        del df['ArrDelay']
 
-    y_type = df['DelayFactor']
-    del df['DelayFactor']
+        y_type = df['DelayFactor']
+        del df['DelayFactor']
 
-    # CRSElapsedTime and Distance left unchanged
-    return df, y_delay, y_type
+        # CRSElapsedTime and Distance left unchanged
+        return df, y_delay, y_type
+
+    else:
+        return df
 
 
 def split_to_train_test(df, y_1, y_2, ratio=5):

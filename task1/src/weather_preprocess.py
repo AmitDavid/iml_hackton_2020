@@ -84,7 +84,9 @@ def handle_dates(flight_data_df: pa.DataFrame, weather_df: pa.DataFrame):
     dep = flight_data_df['CRSDepTime']
     arr = flight_data_df['CRSArrTime']
     flight_data_df['day_arr'] = flight_data_df['CRSDepTime'].where(dep < arr,
-                                                                   flight_data_df['day'] + datetime.timedelta(days=1))
+                                                                   flight_data_df[
+                                                                       'day'] + datetime.timedelta(
+                                                                       days=1))
     flight_data_df['day_arr'].where(dep > arr, flight_data_df['day'], inplace=True)
     flight_data_df['day_arr'] = pa.to_datetime(arg=flight_data_df['day_arr'])
 
@@ -103,7 +105,8 @@ def preprocess_weather_data(flight_data_df: pa.DataFrame, weather_df: pa.DataFra
 
     # merge by arrival date and destination
     weather_df.rename(columns={'Origin': 'Dest', 'day': 'day_arr'}, inplace=True)
-    merged = merged.merge(weather_df, on=['Dest', 'day_arr'], validate="m:1", how='left', suffixes=('_dep', '_arr'))
+    merged = merged.merge(weather_df, on=['Dest', 'day_arr'], validate="m:1", how='left',
+                          suffixes=('_dep', '_arr'))
     replace_na(merged, is_merged_df=True)
     # convert day_arr back to the same format as FlightDate, dropping the col that were required for merging
     merged['day_arr'] = merged['day_arr'].dt.strftime("%Y-%m-%d")

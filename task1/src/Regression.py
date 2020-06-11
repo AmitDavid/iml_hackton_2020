@@ -1,13 +1,14 @@
+import numpy as np
 import pandas as pd
 from pandas import DataFrame
 from sklearn.metrics import mean_squared_error, r2_score, explained_variance_score
 from sklearn.tree import DecisionTreeRegressor
-import numpy as np
 
 
 def Decision_trees(X_train, y_train, X_test, y_test):
     model_name = 'Decision trees'
-    regressor = DecisionTreeRegressor(max_features=0.8, min_samples_split=0.2, min_samples_leaf=0.05)
+    regressor = DecisionTreeRegressor(max_features=0.8, min_samples_split=0.2,
+                                      min_samples_leaf=0.05)
     regressor.fit(X_train, y_train)
     score_train = regressor.score(X_train, y_train)
     score_test = regressor.score(X_test, y_test)
@@ -28,6 +29,8 @@ def Decision_trees(X_train, y_train, X_test, y_test):
 
 def get_reg_model(X_train, y_train, X_test, y_test):
     print("Decision trees")
-    model_name, y_pred, r2, MSE, score_train, score_test, EVS = Decision_trees(X_train, y_train, X_test, y_test)
-    return DataFrame({'model_name': model_name, 'r2': r2, 'MSE': MSE, 'score_train': score_train, 'score_test':
-        score_test, 'EVS': EVS}, index=[0])
+    model_name, y_pred, r2, MSE, score_train, score_test, EVS = Decision_trees(X_train, y_train,
+                                                                               X_test, y_test)
+    return DataFrame(
+        {'model_name': model_name, 'r2': r2, 'MSE': MSE, 'score_train': score_train, 'score_test':
+            score_test, 'EVS': EVS}, index=[0])

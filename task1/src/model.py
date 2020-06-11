@@ -1,7 +1,7 @@
 import pickle
 
-from task1.src.weather_preprocess import *
-from task1.src.Classification import *
+from Classification import *
+from weather_preprocess import *
 
 ###########################################
 #        For running trained model        #
@@ -35,7 +35,7 @@ class FlightPredictor:
         """
         # Preprocess data
         df = preprocess_weather_data(X, self.weather_df)
-        X = preprocess_flight_data(df)
+        X = preprocess_flight_data(df, False)
 
         y_delay_hat = self.reg_model.predict(X)
         y_type_hat = self.class_model.predict(X)

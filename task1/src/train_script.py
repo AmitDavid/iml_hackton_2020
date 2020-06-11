@@ -1,10 +1,11 @@
-import sys
 import os
+import sys
 import time
-from task1.src.preprocess_fllght_data import *
-from task1.src.weather_preprocess import *
-from task1.src.Classification import *
-from task1.src.Regression import *
+
+from Classification import *
+from Regression import *
+from preprocess_fllght_data import *
+from weather_preprocess import *
 
 NUM_OF_ARGS = 3
 
@@ -37,7 +38,8 @@ def is_valid_usage():
            and sys.argv[2] in WEATHER_FILE
 
 
-def run_classifier(X_test: pa.DataFrame, X_train: pa.DataFrame, y_test_type: pa.DataFrame, y_train_type: pa.DataFrame):
+def run_classifier(X_test: pa.DataFrame, X_train: pa.DataFrame, y_test_type: pa.DataFrame,
+                   y_train_type: pa.DataFrame):
     """
     Run the classifier, and print the score of the trained model
     :param X_test: Test feature matrix
@@ -55,7 +57,8 @@ def run_classifier(X_test: pa.DataFrame, X_train: pa.DataFrame, y_test_type: pa.
     y_test_type, y_train_type = y_test_type.cat.codes, y_train_type.cat.codes
     y_test_type, y_train_type = y_test_type + 1, y_train_type + 1
 
-    class_model = get_classification_model(X_train[mask_train], y_train_type[mask_train], X_test[mask_test],
+    class_model = get_classification_model(X_train[mask_train], y_train_type[mask_train],
+                                           X_test[mask_test],
                                            y_test_type[mask_test])
     print(class_model.to_string())
     end = time.time()
@@ -94,7 +97,9 @@ def get_feature_matrix(train_path: str, weather_path: str):
 
     else:
         print('load data')
-        df = pd.read_csv(train_path, dtype={'FlightDate': str, 'CRSDepTime': str, 'CRSArrTime': str}, nrows=100000)
+        df = pd.read_csv(train_path,
+                         dtype={'FlightDate': str, 'CRSDepTime': str, 'CRSArrTime': str},
+                         nrows=100000)
         print('load weather')
         weather_df = pd.read_csv(weather_path, low_memory=False)
         print('preprocess weather')
@@ -135,7 +140,9 @@ def start_train(train_path: str, weather_path: str):
     """
     X, y_delay, y_type = get_feature_matrix(train_path, weather_path)
     # Split to train and test
-    X_train, y_train_delay, y_train_type, X_test, y_test_delay, y_test_type = split_to_train_test(X, y_delay, y_type)
+    X_train, y_train_delay, y_train_type, X_test, y_test_delay, y_test_type = split_to_train_test(X,
+                                                                                                  y_delay,
+                                                                                                  y_type)
 
     run_regression(X_test, X_train, y_test_delay, y_train_delay)
     # Get classifier model
