@@ -9,6 +9,8 @@ from task1.src.Regression import *
 from task1.src.preprocess_fllght_data import *
 from task1.src.weather_preprocess import *
 
+NUM_OF_ROWS = 100000
+
 NUM_OF_ARGS = 3
 
 PATH_TO_TRAIN_DATA = "../data/train_data.csv"
@@ -30,7 +32,7 @@ WEATHER_FILE = {
     'jfk': PATH_TO_WEATHER_JFK_PATH
 }
 
-TRAIN_DATA_FILE = {
+TRAIN_DATA = {
     '1k': PATH_TO_SMALL_TRAIN_DATA_PATH,
     '10k': PATH_TO_MEDIUM_TRAIN_DATA_PATH,
     'all_data': PATH_TO_TRAIN_DATA_FILE_PATH
@@ -38,7 +40,7 @@ TRAIN_DATA_FILE = {
 
 
 def is_valid_usage():
-    return len(sys.argv) == NUM_OF_ARGS and sys.argv[1] in TRAIN_DATA_FILE \
+    return len(sys.argv) == NUM_OF_ARGS and sys.argv[1] in TRAIN_DATA \
            and sys.argv[2] in WEATHER_FILE
 
 
@@ -58,8 +60,19 @@ def run_classifier(X_test: pd.DataFrame, X_train: pd.DataFrame, y_test_type: pd.
 
     y_test_type = y_test_type.astype('category')
     y_train_type = y_train_type.astype('category')
+
+    carrier_delay = y_train_type[y_train_type == 'CarrierDelay'].index[0]
+    nas_delay = y_train_type[y_train_type == 'NASDelay'].index[0]
+    late_aircraft_delay = y_train_type[y_train_type == 'LateAircraftDelay'].index[0]
+    weather_delay = y_train_type[y_train_type == 'WeatherDelay'].index[0]
+
     y_test_type, y_train_type = y_test_type.cat.codes, y_train_type.cat.codes
     y_test_type, y_train_type = y_test_type + 1, y_train_type + 1
+
+    for delay in [(y_train_type[carrier_delay], 'CarrierDelay'), (y_train_type[nas_delay], 'NASDelay'),
+                  (y_train_type[late_aircraft_delay], 'LateAircraftDelay'),
+                  (y_train_type[weather_delay], 'WeatherDelay')]:
+        print("{}={}".format(delay[1], delay[0]))
 
     classification_model, score = get_classification_model(X_train[mask_train], y_train_type[mask_train],
                                                            X_test[mask_test],
@@ -106,7 +119,7 @@ def get_feature_matrix(train_path: str, weather_path: str):
 
     else:
         print('load data')
-        df = pd.read_csv(train_path, nrows=100000)
+        df = pd.read_csv(train_path, nrows=NUM_OF_ROWS)
         print('load weather')
         weather_df = pd.read_csv(weather_path, low_memory=False)
         print('preprocess weather')
@@ -120,7 +133,7 @@ def get_feature_matrix(train_path: str, weather_path: str):
         print(design_matrix.describe().to_string())
         print(design_matrix.head(50).to_string())
 
-        save_to_file(design_matrix, y_delay, y_type)
+        # save_to_file(design_matrix, y_delay, y_type)
 
     return design_matrix, y_delay, y_type
 
@@ -158,7 +171,7 @@ def start_train(train_path: str, weather_path: str):
 
 def model_test():
     start = time.time()
-    matrix_x = pd.read_csv(PATH_TO_MEDIUM_TRAIN_DATA_PATH)
+    matrix_x = pd.read_csv(PATH_TO_TRAIN_DATA_FILE_PATH)
     matrix_x = matrix_x.drop(columns=['ArrDelay', 'DelayFactor'])
     my_model = model.FlightPredictor(PATH_TO_WEATHER_FILE_PATH)
     y = my_model.predict(matrix_x)
@@ -168,12 +181,12 @@ def model_test():
 
 
 if __name__ == '__main__':
-    model_test()
+    # model_test()
 
-    # if is_valid_usage():
-    #     start_train(TRAIN_DATA_FILE[sys.argv[1]], WEATHER_FILE[sys.argv[2]])
-    # else:
-    #     print("Usage: python weather_preprocess.py X Y\n"
-    #           "'X = 1k/10k/all_data' for 1k/10k/all_data flight data\n"
-    #           "'Y = jfk' for weather with only JFK\n"
-    #           "'Y = all_weather' for all weather data\n")
+    if is_valid_usage():
+        start_train(TRAIN_DATA[sys.argv[1]], WEATHER_FILE[sys.argv[2]])
+    else:
+        print("Usage: python weather_preprocess.py X Y\n"
+              "'X = 1k/10k/all_data' for 1k/10k/all_data flight data\n"
+              "'Y = jfk' for weather with only JFK\n"
+              "'Y = all_weather' for all weather data\n")

@@ -87,7 +87,7 @@ def preprocess_flight_data(df: pd.DataFrame, train_data=True):
         return df
 
 
-def split_to_train_test(df, y_1, y_2, ratio=5):
+def split_to_train_test(df, y_1, y_2, ratio=20000):
     """
     Split data to train and test sets
     :param df:
