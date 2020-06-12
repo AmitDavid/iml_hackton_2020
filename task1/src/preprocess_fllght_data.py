@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def preprocess_flight_data(df: pd.DataFrame, train_data=True):
+def preprocess_flight_data(df: pd.DataFrame, train_data=True, empty_df=None):
     """
     :param train_data: Optional, True/False the data includes the real delays (default=True)
     :param df:  Pandas DataFrame contain the following:
@@ -84,6 +84,9 @@ def preprocess_flight_data(df: pd.DataFrame, train_data=True):
         return df, y_delay, y_type
 
     else:
+        # add missing features
+        pd.concat([empty_df, df], axis=0).drop_duplicates().fillna(0)
+
         return df
 
 

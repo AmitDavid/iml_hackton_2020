@@ -9,6 +9,7 @@ from task1.src.preprocess_fllght_data import *
 ###########################################
 PATH_TO_REGRESSION_MODEL = "../pickle/reg_model"
 PATH_TO_CLASSIFICATION_MODEL = "../pickle/class_model"
+PATH_TO_EMPTY_DATA_FRAME = "../pickle/empty_df.csv"
 
 
 class FlightPredictor:
@@ -19,6 +20,7 @@ class FlightPredictor:
         """
         self.__weather_df = pd.read_csv(path_to_weather, low_memory=False)
 
+
         with open(PATH_TO_REGRESSION_MODEL, 'rb') as reg_file:
             self.__reg_model = pickle.load(reg_file)
             reg_file.close()
@@ -26,6 +28,8 @@ class FlightPredictor:
         with open(PATH_TO_CLASSIFICATION_MODEL, 'rb') as class_file:
             self.__class_model = pickle.load(class_file)
             class_file.close()
+
+        self.empty_df = pd.read_csv(PATH_TO_EMPTY_DATA_FRAME)
 
     def predict(self, design_matrix):
         """
@@ -36,7 +40,7 @@ class FlightPredictor:
         """
         # Preprocess data
         df = preprocess_weather_data(design_matrix, self.__weather_df)
-        design_matrix = preprocess_flight_data(df, False)
+        design_matrix = preprocess_flight_data(df, False, self.empty_df)
         design_matrix.info()
         y_delay_hat = self.__reg_model.predict(design_matrix)
         y_type_hat = self.__class_model.predict(design_matrix)
