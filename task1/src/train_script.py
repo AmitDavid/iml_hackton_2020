@@ -119,7 +119,7 @@ def get_feature_matrix(train_path: str, weather_path: str):
 
     else:
         print('load data')
-        df = pd.read_csv(train_path, nrows=NUM_OF_ROWS)
+        df = pd.read_csv(train_path)
         print('load weather')
         weather_df = pd.read_csv(weather_path, low_memory=False)
         print('preprocess weather')
@@ -171,9 +171,9 @@ def start_train(train_path: str, weather_path: str):
 
 def model_test():
     start = time.time()
-    matrix_x = pd.read_csv(PATH_TO_TRAIN_DATA_FILE_PATH)
+    matrix_x = pd.read_csv(PATH_TO_TRAIN_DATA_FILE_PATH, nrows=5000)
     matrix_x = matrix_x.drop(columns=['ArrDelay', 'DelayFactor'])
-    my_model = model.FlightPredictor(PATH_TO_WEATHER_FILE_PATH)
+    my_model = model.FlightPredictor(PATH_TO_WEATHER_JFK_PATH)
     y = my_model.predict(matrix_x)
     end = time.time()
     print(y.to_string())
@@ -181,12 +181,12 @@ def model_test():
 
 
 if __name__ == '__main__':
-    # model_test()
+    model_test()
 
-    if is_valid_usage():
-        start_train(TRAIN_DATA[sys.argv[1]], WEATHER_FILE[sys.argv[2]])
-    else:
-        print("Usage: python weather_preprocess.py X Y\n"
-              "'X = 1k/10k/all_data' for 1k/10k/all_data flight data\n"
-              "'Y = jfk' for weather with only JFK\n"
-              "'Y = all_weather' for all weather data\n")
+    # if is_valid_usage():
+    #     start_train(TRAIN_DATA[sys.argv[1]], WEATHER_FILE[sys.argv[2]])
+    # else:
+    #     print("Usage: python weather_preprocess.py X Y\n"
+    #           "'X = 1k/10k/all_data' for 1k/10k/all_data flight data\n"
+    #           "'Y = jfk' for weather with only JFK\n"
+    #           "'Y = all_weather' for all weather data\n")

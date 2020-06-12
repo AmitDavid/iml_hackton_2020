@@ -1,15 +1,14 @@
 import pickle
 import pandas as pd
-from task1.src.Classification import *
-from task1.src.weather_preprocess import *
-from task1.src.preprocess_fllght_data import *
+from Classification import *
+from weather_preprocess import *
+from preprocess_fllght_data import *
 
 ###########################################
 #        For running trained model        #
 ###########################################
 PATH_TO_REGRESSION_MODEL = "../pickle/reg_model"
 PATH_TO_CLASSIFICATION_MODEL = "../pickle/class_model"
-PATH_TO_EMPTY_DATA_FRAME = "../pickle/empty_df.csv"
 
 
 class FlightPredictor:
@@ -20,7 +19,6 @@ class FlightPredictor:
         """
         self.__weather_df = pd.read_csv(path_to_weather, low_memory=False)
 
-
         with open(PATH_TO_REGRESSION_MODEL, 'rb') as reg_file:
             self.__reg_model = pickle.load(reg_file)
             reg_file.close()
@@ -28,8 +26,6 @@ class FlightPredictor:
         with open(PATH_TO_CLASSIFICATION_MODEL, 'rb') as class_file:
             self.__class_model = pickle.load(class_file)
             class_file.close()
-
-        self.empty_df = pd.read_csv(PATH_TO_EMPTY_DATA_FRAME)
 
     def predict(self, design_matrix):
         """
@@ -40,13 +36,12 @@ class FlightPredictor:
         """
         # Preprocess data
         df = preprocess_weather_data(design_matrix, self.__weather_df)
-        design_matrix = preprocess_flight_data(df, False, self.empty_df)
-        design_matrix.info()
+        design_matrix = preprocess_flight_data(df, False)
         y_delay_hat = self.__reg_model.predict(design_matrix)
         y_type_hat = self.__class_model.predict(design_matrix)
 
         x = {1: "CarrierDelay", 2: "LateAircraftDelay", 3: "NASDelay", 4: "WeatherDelay"}
-        y_type_hat = x[y_type_hat]
+        y_type_hat = [x[col_type] for col_type in y_type_hat]
 
         y = pd.DataFrame({'ArrDelay': y_delay_hat, 'DelayFactor': y_type_hat})
 
